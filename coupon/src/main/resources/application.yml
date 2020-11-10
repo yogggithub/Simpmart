@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.42.88:3306/simpmart_prom?useUnicode=true&characterEncoding=UTF-8&serverTimezone=US/Eastern
+    username: root
+    password: root
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  # Primary key auto incremental
+  global-config:
+    db-config:
+      id-type: auto
+server:
+  port: 8201
