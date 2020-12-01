@@ -6,7 +6,7 @@
 	<!-- Determine whether use or not based on needs -->
     <resultMap type="com.simpmart.commodity.entity.SpuInfoDescEntity" id="spuInfoDescMap">
         <result property="spuId" column="spu_id"/>
-        <result property="decript" column="decript"/>
+        <result property="description" column="description"/>
     </resultMap>
 
 

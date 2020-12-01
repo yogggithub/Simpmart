@@ -18,16 +18,16 @@
 
 <script>
   export default {
-    computed: {
-      navbarLayoutType: {
-        get () { return this.$store.state.common.navbarLayoutType },
-        set (val) { this.$store.commit('common/updateNavbarLayoutType', val) }
-      },
-      sidebarLayoutSkin: {
-        get () { return this.$store.state.common.sidebarLayoutSkin },
-        set (val) { this.$store.commit('common/updateSidebarLayoutSkin', val) }
+      computed: {
+          navbarLayoutType: {
+              get () { return this.$store.state.common.navbarLayoutType },
+              set (val) { this.$store.commit('common/updateNavbarLayoutType', val) }
+          },
+          sidebarLayoutSkin: {
+              get () { return this.$store.state.common.sidebarLayoutSkin },
+              set (val) { this.$store.commit('common/updateSidebarLayoutSkin', val) }
+          }
       }
-    }
   }
 </script>
 

@@ -1,0 +1,49 @@
+# All configuration files are migrated to the Nacos Configuration Center.
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://192.168.42.88:3306/simpmart_comm?useUnicode=true&characterEncoding=UTF-8&serverTimezone=US/Eastern
+#    username: root
+#    password: root
+#  application:
+#    name: gateway
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 192.168.42.88:8848
+#    gateway:
+#      # The more precise the rule, the higher its ranking should be.
+#      # Otherwise access will be directed to an incorrect address by a fuzzy matching rule.
+#      routes:
+#
+#        # route rule for commodity related request
+#        - id: commodity_route
+#          uri: lb://commodity
+#          predicates:
+#            - Path=/api/commodity/**
+#          filters:
+#            - RewritePath=/api/commodity/(?<segment>.*), /commodity/$\{segment}
+#
+#        # route rule for third party module
+#        - id: thirdparty_route
+#          uri: lb://thirdparty
+#          predicates:
+#            - Path=/api/thirdparty/**
+#          filters:
+#            - RewritePath=/api/thirdparty/(?<segment>.*), /thirdparty/$\{segment}
+#
+#        # All other request route to admin_route
+#        # route rule for renren-fast vue
+#        - id: admin_route
+#          uri: lb://renren-fast
+#          predicates:
+#            # All frobt end request must have api as prefix
+#            # and all request contains /api will be routed to renren-fast
+#            - Path=/api/**
+#          # gateway rewrite path, replace prefix
+#          filters:
+#            - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
+#
+#
+#server:
+#  port: 88

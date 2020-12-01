@@ -1,19 +1,16 @@
 package com.simpmart.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.simpmart.coupon.entity.CouponEntity;
-import com.simpmart.coupon.service.CouponService;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import com.simpmart.coupon.entity.CouponEntity;
+import com.simpmart.coupon.service.CouponService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -25,6 +22,7 @@ import com.simpmart.common.utils.R;
  */
 @RestController
 @RequestMapping("coupon/coupon")
+@RefreshScope
 public class CouponController {
     @Autowired
     private CouponService couponService;
@@ -85,4 +83,27 @@ public class CouponController {
         return R.ok();
     }
 
+    /**
+     * Test the OpenFeign module
+     */
+    @RequestMapping("/member/couponlist")
+    public R memberCoupon(){
+        CouponEntity couponEntity = new CouponEntity();
+        couponEntity.setCouponName("Test - 20% off");
+        return R.ok()
+                .put("coupons", Arrays.asList(couponEntity));
+    }
+
+    // Get properties value using SpEL
+    @Value("${coupon.user.name}")
+    private String name;
+
+    /**
+     * Test Nacos Configuration
+     */
+    @RequestMapping("/testconfig")
+    public R testConfig(){
+        return R.ok()
+                .put("name", name);
+    }
 }

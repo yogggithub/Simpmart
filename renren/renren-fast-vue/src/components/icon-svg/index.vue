@@ -10,34 +10,34 @@
 
 <script>
   export default {
-    name: 'icon-svg',
-    props: {
-      name: {
-        type: String,
-        required: true
+      name: 'icon-svg',
+      props: {
+          name: {
+              type: String,
+              required: true
+          },
+          className: {
+              type: String
+          },
+          width: {
+              type: String
+          },
+          height: {
+              type: String
+          }
       },
-      className: {
-        type: String
-      },
-      width: {
-        type: String
-      },
-      height: {
-        type: String
+      computed: {
+          getName () {
+              return `#icon-${this.name}`
+          },
+          getClassName () {
+              return [
+                  'icon-svg',
+                  `icon-svg__${this.name}`,
+                  this.className && /\S/.test(this.className) ? `${this.className}` : ''
+              ]
+          }
       }
-    },
-    computed: {
-      getName () {
-        return `#icon-${this.name}`
-      },
-      getClassName () {
-        return [
-          'icon-svg',
-          `icon-svg__${this.name}`,
-          this.className && /\S/.test(this.className) ? `${this.className}` : ''
-        ]
-      }
-    }
   }
 </script>
 

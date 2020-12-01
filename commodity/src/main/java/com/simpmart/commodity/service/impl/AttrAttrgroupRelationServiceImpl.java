@@ -6,11 +6,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.simpmart.commodity.dao.AttrAttrgroupRelationDao;
 import com.simpmart.commodity.entity.AttrAttrgroupRelationEntity;
 import com.simpmart.commodity.service.AttrAttrgroupRelationService;
+import com.simpmart.commodity.vo.AttrGroupRelationVo;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.Query;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("attrAttrgroupRelationService")
@@ -26,4 +30,20 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
         return new PageUtils(page);
     }
 
+    /**
+     * batch save
+     *
+     * @param vos
+     */
+    @Override
+    public void saveBatch(List<AttrGroupRelationVo> vos) {
+        List<AttrAttrgroupRelationEntity> relationEntityList =
+                vos.stream().map(vo -> {
+                    AttrAttrgroupRelationEntity entity =
+                            new AttrAttrgroupRelationEntity();
+                    BeanUtils.copyProperties(vo, entity);
+                    return entity;
+                }).collect(Collectors.toList());
+        this.saveBatch(relationEntityList);
+    }
 }

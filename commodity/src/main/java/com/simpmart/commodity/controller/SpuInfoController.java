@@ -1,19 +1,15 @@
 package com.simpmart.commodity.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.simpmart.commodity.entity.SpuInfoEntity;
 import com.simpmart.commodity.service.SpuInfoService;
+import com.simpmart.commodity.vo.SpuSaveVo;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -54,11 +50,13 @@ public class SpuInfoController {
 
     /**
      * Save
+     * Because attributes need to saved is very large
+     * so create a series of vo entities to complete save
      */
     @RequestMapping("/save")
     //@RequiresPermissions("commodity:spuinfo:save")
-    public R save(@RequestBody SpuInfoEntity spuInfo) {
-            spuInfoService.save(spuInfo);
+    public R save(@RequestBody SpuSaveVo vo) {
+            spuInfoService.saveSpuInfo(vo);
 
         return R.ok();
     }

@@ -1,19 +1,15 @@
 package com.simpmart.commodity.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.simpmart.commodity.entity.AttrEntity;
 import com.simpmart.commodity.service.AttrService;
+import com.simpmart.commodity.vo.AttrResponseVo;
+import com.simpmart.commodity.vo.AttrVo;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -47,9 +43,9 @@ public class AttrController {
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("commodity:attr:info")
     public R info(@PathVariable("attrId") Long attrId) {
-            AttrEntity attr = attrService.getById(attrId);
 
-        return R.ok().put("attr", attr);
+        AttrResponseVo responseVo = attrService.getAttrInfo(attrId);
+        return R.ok().put("attr", responseVo);
     }
 
     /**
@@ -57,8 +53,8 @@ public class AttrController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("commodity:attr:save")
-    public R save(@RequestBody AttrEntity attr) {
-            attrService.save(attr);
+    public R save(@RequestBody AttrVo attr) {
+        attrService.saveAttrVo(attr);
 
         return R.ok();
     }
@@ -68,8 +64,8 @@ public class AttrController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("commodity:attr:update")
-    public R update(@RequestBody AttrEntity attr) {
-            attrService.updateById(attr);
+    public R update(@RequestBody AttrVo attr) {
+        attrService.updateAttr(attr);
 
         return R.ok();
     }
@@ -80,9 +76,17 @@ public class AttrController {
     @RequestMapping("/delete")
     //@RequiresPermissions("commodity:attr:delete")
     public R delete(@RequestBody Long[] attrIds) {
-            attrService.removeByIds(Arrays.asList(attrIds));
+        attrService.removeByIds(Arrays.asList(attrIds));
 
         return R.ok();
+    }
+
+    @GetMapping("/{attrType}/list/{catalogId}")
+    public R baseAttrList(@RequestParam Map<String, Object> params,
+                          @PathVariable("catalogId") Long catalogId,
+                          @PathVariable("attrType") String type) {
+        PageUtils page = attrService.queryBaseAttrPage(params, catalogId, type);
+        return R.ok().put("page", page);
     }
 
 }

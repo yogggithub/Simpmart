@@ -2,10 +2,9 @@ package com.simpmart.commodity.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import lombok.Data;
 
 /**
  * attribute
@@ -51,10 +50,14 @@ public class AttrEntity implements Serializable {
 	/**
 	 * attribute category id
 	 */
-	private Long catelogId;
+	private Long catalogId;
 	/**
 	 * displayed on the product, can also be adjusted in spu [0->no, 1->yes]
 	 */
 	private Integer showDesc;
+	/**
+	 * value type allowed [0->single value, 1->multiple value]
+	 */
+	private Integer valueType;
 
 }

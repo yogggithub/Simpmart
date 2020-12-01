@@ -232,6 +232,13 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 		</dependency>
+
+		<!-- 项目公共依赖 -->
+		<dependency>
+			<groupId>com.simpmart</groupId>
+			<artifactId>simpmart-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

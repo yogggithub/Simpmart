@@ -1,19 +1,15 @@
 package com.simpmart.commodity.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.simpmart.commodity.entity.CategoryEntity;
 import com.simpmart.commodity.service.CategoryService;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -47,7 +43,7 @@ public class CategoryController {
     @RequestMapping("/info/{catId}")
     //@RequiresPermissions("commodity:category:info")
     public R info(@PathVariable("catId") Long catId) {
-            CategoryEntity category = categoryService.getById(catId);
+        CategoryEntity category = categoryService.getById(catId);
 
         return R.ok().put("category", category);
     }
@@ -58,7 +54,7 @@ public class CategoryController {
     @RequestMapping("/save")
     //@RequiresPermissions("commodity:category:save")
     public R save(@RequestBody CategoryEntity category) {
-            categoryService.save(category);
+        categoryService.save(category);
 
         return R.ok();
     }
@@ -69,7 +65,7 @@ public class CategoryController {
     @RequestMapping("/update")
     //@RequiresPermissions("commodity:category:update")
     public R update(@RequestBody CategoryEntity category) {
-            categoryService.updateById(category);
+        categoryService.updateCascade(category);
 
         return R.ok();
     }
@@ -80,9 +76,38 @@ public class CategoryController {
     @RequestMapping("/delete")
     //@RequiresPermissions("commodity:category:delete")
     public R delete(@RequestBody Long[] catIds) {
-            categoryService.removeByIds(Arrays.asList(catIds));
+        /*
+         * change original auto-generated delete method
+         * because I need check whether the category is related to others
+         */
+        categoryService.removeCategoryByIds(Arrays.asList(catIds));
 
         return R.ok();
     }
 
+    /**
+     * Query all the categories and its children categories
+     * and wrap them into a tree
+     */
+    @RequestMapping("/list/tree")
+    //@RequiresPermissions("commodity:category:list")
+    public R list() {
+        List<CategoryEntity> categoryEntityList =
+                categoryService.listWithTree();
+
+        return R.ok().put("data", categoryEntityList);
+    }
+
+    /**
+     * Batch update after drag and drop a category on webpage
+     * Focus on update sort information
+     *
+     */
+    @RequestMapping("/update/sort")
+    //@RequiresPermissions("commodity:category:update")
+    public R update(@RequestBody CategoryEntity[] category) {
+        categoryService.updateBatchById(Arrays.asList(category));
+
+        return R.ok();
+    }
 }

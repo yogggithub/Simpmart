@@ -1,0 +1,8 @@
+package com.simpmart.common.validation.group;
+
+/**
+ * This interface represent as a group when using grouping validate.
+ * This group means update an existing entity
+ */
+public interface UpdateGroup {
+}

@@ -1,15 +1,31 @@
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.42.88:3306/simpmart_comm?useUnicode=true&characterEncoding=UTF-8&serverTimezone=US/Eastern
-    username: root
-    password: root
-
-mybatis-plus:
-  mapper-locations: classpath:/mapper/**/*.xml
-  # Primary key auto incremental
-  global-config:
-    db-config:
-      id-type: auto
-server:
-  port: 8101
+# All configuration files are migrated to the Nacos Configuration Center.
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://192.168.42.88:3306/simpmart_comm?useUnicode=true&characterEncoding=UTF-8&serverTimezone=US/Eastern
+#    username: root
+#    password: root
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 192.168.42.88:8848
+#  application:
+#    name: commodity
+#
+#mybatis-plus:
+#  mapper-locations: classpath:/mapper/**/*.xml
+#  # Primary key auto incremental
+#  global-config:
+#    db-config:
+#      id-type: auto
+#      # logical delete
+#
+#      # because there are multiple tables used in this module
+#      # so, I choose not to use logic-delete-field,
+#      # Instead, use annotation @TableLogic on the iconic attribute
+#      # logic-delete-field: flag  # column name that restore the status
+#      logic-delete-value: 1 # been logical deleted
+#      logic-not-delete-value: 0 # not been logical deleted
+#
+#server:
+#  port: 8101

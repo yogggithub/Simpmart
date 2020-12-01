@@ -1,19 +1,15 @@
 package com.simpmart.member.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.simpmart.member.entity.MemberEntity;
-import com.simpmart.member.service.MemberService;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import com.simpmart.member.entity.MemberEntity;
+import com.simpmart.member.feign.CouponFeignService;
+import com.simpmart.member.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -83,6 +79,32 @@ public class MemberController {
             memberService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    /**
+     * Test OpenFeign function
+     * import the interface created for calling OpenFeign
+     */
+    @Autowired
+    CouponFeignService couponFeignService;
+
+    /**
+     * Test OpenFeign function
+     * @return
+     */
+    @RequestMapping("/coupons")
+    public R TestOpenFeign(){
+        // For test purpose, create a member entity
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setNickname("Dave");
+
+        // Call the interface and get response
+        R memberCoupon = couponFeignService.memberCoupon();
+
+        // Response with member info and coupons list
+        return R.ok()
+                .put("member", memberEntity.getNickname())
+                .put("coupons", memberCoupon.get("coupons"));
     }
 
 }

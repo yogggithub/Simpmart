@@ -20,6 +20,10 @@ module.exports = {
     // allow async-await
     'generator-star-spacing': 'off',
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    // don't allow let auto changed to const
+		"prefer-const": 0,
+		// coding intent is 4 spaces, ie tab
+		"indent": ['error', 4],
   }
 }
