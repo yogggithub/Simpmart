@@ -1,6 +1,7 @@
 package com.simpmart.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.simpmart.common.to.SkuPromotionTo;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.coupon.entity.SkuFullReductionEntity;
 
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface SkuFullReductionService extends IService<SkuFullReductionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void saveSkuPromotion(SkuPromotionTo skuPromotionTo);
 }
 

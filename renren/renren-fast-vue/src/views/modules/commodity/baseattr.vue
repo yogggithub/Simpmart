@@ -253,7 +253,7 @@
                         return item.attrId
                     })
                 this.$confirm(
-                    `Are you sure to [${id ? 'delete' : 'batch delete'}] [id=${ids.join(',')}]?`,
+                    `Do you want to [${id ? 'delete' : 'batch delete'}] [id=${ids.join(',')}]?`,
                     'Warning',
                     {
                         confirmButtonText: 'Confirm',

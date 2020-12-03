@@ -18,7 +18,7 @@ import com.simpmart.commodity.service.CategoryService;
 import com.simpmart.commodity.vo.AttrGroupRelationVo;
 import com.simpmart.commodity.vo.AttrResponseVo;
 import com.simpmart.commodity.vo.AttrVo;
-import com.simpmart.common.constant.CommodityCons;
+import com.simpmart.common.constant.CommodityConst;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.Query;
 import org.springframework.beans.BeanUtils;
@@ -66,7 +66,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         // save relationship
         if (attr.getAttrType() ==
-            CommodityCons.AttrEnum.ATTR_TYPE_BASE.getCode() &&
+            CommodityConst.AttrEnum.ATTR_TYPE_BASE.getCode() &&
             attr.getAttrGroupId() != null) {
 
             AttrAttrgroupRelationEntity relationEntity =
@@ -97,8 +97,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 new LambdaQueryWrapper<AttrEntity>()
                         .eq(AttrEntity::getAttrType,
                             "base".equalsIgnoreCase(type) ?
-                                    CommodityCons.AttrEnum.ATTR_TYPE_BASE.getCode() :
-                                    CommodityCons.AttrEnum.ATTR_TYPE_SALE.getCode());
+                                    CommodityConst.AttrEnum.ATTR_TYPE_BASE.getCode() :
+                                    CommodityConst.AttrEnum.ATTR_TYPE_SALE.getCode());
 
         if (catalogId != 0) {
             lambdaWrapper.eq(AttrEntity::getCatalogId, catalogId);
@@ -164,7 +164,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attrEntity, responseVo);
 
         if (attrEntity.getAttrType() ==
-            CommodityCons.AttrEnum.ATTR_TYPE_BASE.getCode()) {
+            CommodityConst.AttrEnum.ATTR_TYPE_BASE.getCode()) {
             // update group info
             AttrAttrgroupRelationEntity relationEntity =
                     relationDao.selectOne(
@@ -199,7 +199,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         this.updateById(attrEntity);
 
         if (attr.getAttrType() ==
-            CommodityCons.AttrEnum.ATTR_TYPE_BASE.getCode()) {
+            CommodityConst.AttrEnum.ATTR_TYPE_BASE.getCode()) {
             // update attribute-group-relationship
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             relationEntity.setAttrId(attr.getAttrId());
@@ -290,7 +290,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         LambdaQueryWrapper<AttrEntity> wrapper = new LambdaQueryWrapper<AttrEntity>()
                 .eq(AttrEntity::getCatalogId, catalogId)
                 .eq(AttrEntity::getAttrType,
-                    CommodityCons.AttrEnum.ATTR_TYPE_BASE.getCode());
+                    CommodityConst.AttrEnum.ATTR_TYPE_BASE.getCode());
         if (!CollectionUtils.isEmpty(attrList)) {
             wrapper.notIn(AttrEntity::getAttrId, attrList);
         }

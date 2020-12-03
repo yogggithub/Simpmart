@@ -1,19 +1,15 @@
 package com.simpmart.coupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.simpmart.coupon.entity.SkuFullReductionEntity;
-import com.simpmart.coupon.service.SkuFullReductionService;
+import com.simpmart.common.to.SkuPromotionTo;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import com.simpmart.coupon.entity.SkuFullReductionEntity;
+import com.simpmart.coupon.service.SkuFullReductionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -81,6 +77,17 @@ public class SkuFullReductionController {
     //@RequiresPermissions("coupon:skufullreduction:delete")
     public R delete(@RequestBody Long[] ids) {
             skuFullReductionService.removeByIds(Arrays.asList(ids));
+
+        return R.ok();
+    }
+
+    /**
+     * Save general promotions info
+     */
+    @PostMapping("/saveinfo")
+    //@RequiresPermissions("coupon:skufullreduction:save")
+    public R saveSkuPromotion(@RequestBody SkuPromotionTo skuPromotionTo) {
+        skuFullReductionService.saveSkuPromotion(skuPromotionTo);
 
         return R.ok();
     }

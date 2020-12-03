@@ -43,7 +43,6 @@
                         catId: this.catId
                     })
                 }).then(({ data }) => {
-                    console.log('data', data)
                     this.brands = data.data
                 })
             }

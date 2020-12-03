@@ -9,7 +9,7 @@
                             :label="group.attrGroupName"
                             v-for="(group,gidx) in dataResp.attrGroups"
                         >
-                            <!-- 遍历属性,每个tab-pane对应一个表单，每个属性是一个表单项  spu.baseAttrs[0] = [{attrId:xx,val:}]-->
+                            <!-- iterate attributees: spu.baseAttrs[0] = [{attrId:xx,val:}] -->
                             <el-form :model="dataResp" ref="form">
                                 <el-form-item
                                     :key="attr.attrId"
@@ -26,7 +26,7 @@
                                         allow-create
                                         default-first-option
                                         filterable
-                                        placeholder="请选择或输入值"
+                                        placeholder="Select or Input"
                                         v-model="dataResp.baseAttrs[gidx][aidx].attrValues"
                                     >
                                         <el-option
@@ -40,13 +40,17 @@
                                         :false-label="0"
                                         :true-label="1"
                                         v-model="dataResp.baseAttrs[gidx][aidx].showDesc"
-                                    >快速展示</el-checkbox>
+                                    >Quick Show</el-checkbox>
                                 </el-form-item>
                             </el-form>
                         </el-tab-pane>
                     </el-tabs>
                     <div style="margin:auto">
-                        <el-button @click="submitSpuAttrs" style="float:right" type="success">确认修改</el-button>
+                        <el-button
+                            @click="submitSpuAttrs"
+                            style="float:right"
+                            type="success"
+                        >Confirm</el-button>
                     </div>
                 </el-card>
             </el-col>
@@ -63,7 +67,6 @@
                 spuId: '',
                 catalogId: '',
                 dataResp: {
-                    // 后台返回的所有数据
                     attrGroups: [],
                     baseAttrs: []
                 },
@@ -100,7 +103,6 @@
                     method: 'get',
                     params: this.$http.adornParams({})
                 }).then(({ data }) => {
-                    // 先对表单的baseAttrs进行初始化
                     data.data.forEach(item => {
                         let attrArray = []
                         item.attrs.forEach(attr => {
@@ -126,7 +128,7 @@
                 })
             },
             submitSpuAttrs () {
-                // spu_id  attr_id  attr_name             attr_value             attr_sort  quick_show
+                // spu_id  attr_id  attr_name   attr_value    attr_sort  quick_show
                 let submitData = []
                 this.dataResp.baseAttrs.forEach(item => {
                     item.forEach(attr => {
@@ -148,9 +150,9 @@
                     })
                 })
 
-                this.$confirm('修改商品规格信息, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
+                this.$confirm('Do you want to update product specification?', 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                     type: 'warning'
                 })
                     .then(() => {
@@ -159,17 +161,11 @@
                             method: 'post',
                             data: this.$http.adornData(submitData, false)
                         }).then(({ data }) => {
-                            this.$message({
-                                type: 'success',
-                                message: '属性修改成功!'
-                            })
+                            this.$message.success('Update Successfully')
                         })
                     })
                     .catch((e) => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消修改' + e
-                        })
+                        this.$message.info('Update Canceled')
                     })
             }
         },

@@ -1,32 +1,22 @@
 <template>
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item label="仓库">
-                <el-select
-                    clearable
-                    placeholder="请选择仓库"
-                    style="width:160px;"
-                    v-model="dataForm.wareId"
-                >
-                    <el-option :key="w.id" :label="w.name" :value="w.id" v-for="w in wareList"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="skuId">
-                <el-input clearable placeholder="skuId" v-model="dataForm.skuId"></el-input>
+            <el-form-item>
+                <el-input clearable placeholder="parameter" v-model="dataForm.key"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="getDataList()">查询</el-button>
+                <el-button @click="getDataList()">Query</el-button>
                 <el-button
                     @click="addOrUpdateHandle()"
                     type="primary"
-                    v-if="isAuth('ware:waresku:save')"
-                >新增</el-button>
+                    v-if="isAuth('ware:wareinfo:save')"
+                >Add</el-button>
                 <el-button
                     :disabled="dataListSelections.length <= 0"
                     @click="deleteHandle()"
                     type="danger"
-                    v-if="isAuth('ware:waresku:delete')"
-                >批量删除</el-button>
+                    v-if="isAuth('ware:wareinfo:delete')"
+                >Batch Delete</el-button>
             </el-form-item>
         </el-form>
         <el-table
@@ -38,21 +28,19 @@
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
             <el-table-column align="center" header-align="center" label="id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="sku_id" prop="skuId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库id" prop="wareId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="库存数" prop="stock"></el-table-column>
-            <el-table-column align="center" header-align="center" label="sku_name" prop="skuName"></el-table-column>
-            <el-table-column align="center" header-align="center" label="锁定库存" prop="stockLocked"></el-table-column>
+            <el-table-column align="center" header-align="center" label="name" prop="name"></el-table-column>
+            <el-table-column align="center" header-align="center" label="address" prop="address"></el-table-column>
+            <el-table-column align="center" header-align="center" label="area code" prop="areacode"></el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
                 header-align="center"
-                label="操作"
+                label="Action"
                 width="150"
             >
                 <template slot-scope="scope">
-                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">修改</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">删除</el-button>
+                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">Edit</el-button>
+                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -65,20 +53,18 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- 弹窗, 新增 / 修改 -->
+        <!-- pop-up window, add / update -->
         <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
     </div>
 </template>
 
 <script>
-    import AddOrUpdate from './waresku-add-or-update'
+    import AddOrUpdate from './wareinfo-add-or-update'
     export default {
         data () {
             return {
-                wareList: [],
                 dataForm: {
-                    wareId: '',
-                    skuId: ''
+                    key: ''
                 },
                 dataList: [],
                 pageIndex: 1,
@@ -93,37 +79,18 @@
             AddOrUpdate
         },
         activated () {
-            console.log('接收到', this.$route.query.skuId)
-            if (this.$route.query.skuId) {
-                this.dataForm.skuId = this.$route.query.skuId
-            }
-            this.getWares()
             this.getDataList()
         },
         methods: {
-            getWares () {
-                this.$http({
-                    url: this.$http.adornUrl('/ware/wareinfo/list'),
-                    method: 'get',
-                    params: this.$http.adornParams({
-                        page: 1,
-                        limit: 500
-                    })
-                }).then(({ data }) => {
-                    this.wareList = data.page.list
-                })
-            },
-            // 获取数据列表
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/ware/waresku/list'),
+                    url: this.$http.adornUrl('/ware/warehouseinfo/list'),
                     method: 'get',
                     params: this.$http.adornParams({
-                        page: this.pageIndex,
-                        limit: this.pageSize,
-                        skuId: this.dataForm.skuId,
-                        wareId: this.dataForm.wareId
+                        'page': this.pageIndex,
+                        'limit': this.pageSize,
+                        'key': this.dataForm.key
                     })
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -136,52 +103,41 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // 新增 / 修改
             addOrUpdateHandle (id) {
                 this.addOrUpdateVisible = true
                 this.$nextTick(() => {
                     this.$refs.addOrUpdate.init(id)
                 })
             },
-            // 删除
             deleteHandle (id) {
-                var ids = id
-                    ? [id]
-                    : this.dataListSelections.map(item => {
-                        return item.id
-                    })
-                this.$confirm(
-                    `确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`,
-                    '提示',
-                    {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }
-                ).then(() => {
+                var ids = id ? [id] : this.dataListSelections.map(item => {
+                    return item.id
+                })
+                this.$confirm(`Do you want to ${id ? 'DELETE' : 'BATCH DELETE'} id=${ids.join(',')}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
                     this.$http({
-                        url: this.$http.adornUrl('/ware/waresku/delete'),
+                        url: this.$http.adornUrl('/ware/warehouseinfo/delete'),
                         method: 'post',
                         data: this.$http.adornData(ids, false)
                     }).then(({ data }) => {
                         if (data && data.code === 0) {
                             this.$message({
-                                message: '操作成功',
+                                message: 'Successfully',
                                 type: 'success',
                                 duration: 1500,
                                 onClose: () => {

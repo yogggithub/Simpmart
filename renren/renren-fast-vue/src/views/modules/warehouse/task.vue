@@ -2,21 +2,21 @@
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
             <el-form-item>
-                <el-input clearable placeholder="参数名" v-model="dataForm.key"></el-input>
+                <el-input clearable placeholder="parameter" v-model="dataForm.key"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="getDataList()">查询</el-button>
+                <el-button @click="getDataList()">Query</el-button>
                 <el-button
                     @click="addOrUpdateHandle()"
                     type="primary"
-                    v-if="isAuth('ware:wareinfo:save')"
-                >新增</el-button>
+                    v-if="isAuth('ware:wareordertask:save')"
+                >Add</el-button>
                 <el-button
                     :disabled="dataListSelections.length <= 0"
                     @click="deleteHandle()"
                     type="danger"
-                    v-if="isAuth('ware:wareinfo:delete')"
-                >批量删除</el-button>
+                    v-if="isAuth('ware:wareordertask:delete')"
+                >Batch Delete</el-button>
             </el-form-item>
         </el-form>
         <el-table
@@ -28,19 +28,88 @@
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
             <el-table-column align="center" header-align="center" label="id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库名" prop="name"></el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库地址" prop="address"></el-table-column>
-            <el-table-column align="center" header-align="center" label="区域编码" prop="areacode"></el-table-column>
+            <el-table-column align="center" header-align="center" label="order id" prop="orderId"></el-table-column>
+            <el-table-column align="center" header-align="center" label="order sn" prop="orderSn"></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="consignee"
+                prop="consignee"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="consignee phone"
+                prop="consigneeTel"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="配送地址"
+                prop="deliveryAddress"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="order comment"
+                prop="orderComment"
+            ></el-table-column>
+            <el-table-column align="center" header-align="center" label="payment" prop="paymentWay">
+                <template slot-scope="scope">
+                    <el-tag v-if="scope.row.payment==1">Online Payment</el-tag>
+                    <el-tag v-if="scope.row.payment==2">Cash on Delivery</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="task status"
+                prop="taskStatus"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="order description"
+                prop="orderBody"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="delievery tracking"
+                prop="trackingNo"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="create_time"
+                prop="createTime"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="warehouse id"
+                prop="wareId"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="task comment"
+                prop="taskComment"
+            ></el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
                 header-align="center"
-                label="操作"
+                label="Action"
                 width="150"
             >
                 <template slot-scope="scope">
-                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">修改</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">删除</el-button>
+                    <el-button
+                        @click="addOrUpdateHandle(scope.row.id)"
+                        size="small"
+                        type="text"
+                    >Edit</el-button>
+                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -53,13 +122,13 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- 弹窗, 新增 / 修改 -->
+        <!-- pop-up window, add / update -->
         <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
     </div>
 </template>
 
 <script>
-    import AddOrUpdate from './wareinfo-add-or-update'
+    import AddOrUpdate from './wareordertask-add-or-update'
     export default {
         data () {
             return {
@@ -82,11 +151,10 @@
             this.getDataList()
         },
         methods: {
-            // 获取数据列表
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/ware/wareinfo/list'),
+                    url: this.$http.adornUrl('/ware/wareordertask/list'),
                     method: 'get',
                     params: this.$http.adornParams({
                         'page': this.pageIndex,
@@ -104,46 +172,41 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // 新增 / 修改
             addOrUpdateHandle (id) {
                 this.addOrUpdateVisible = true
                 this.$nextTick(() => {
                     this.$refs.addOrUpdate.init(id)
                 })
             },
-            // 删除
             deleteHandle (id) {
                 var ids = id ? [id] : this.dataListSelections.map(item => {
                     return item.id
                 })
-                this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
+                this.$confirm(`Do you want to ${id ? 'DELETE' : 'BATCH DELETE'} id=${ids.join(',')}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                     type: 'warning'
                 }).then(() => {
                     this.$http({
-                        url: this.$http.adornUrl('/ware/wareinfo/delete'),
+                        url: this.$http.adornUrl('/ware/wareordertask/delete'),
                         method: 'post',
                         data: this.$http.adornData(ids, false)
                     }).then(({ data }) => {
                         if (data && data.code === 0) {
                             this.$message({
-                                message: '操作成功',
+                                message: 'Successfully',
                                 type: 'success',
                                 duration: 1500,
                                 onClose: () => {

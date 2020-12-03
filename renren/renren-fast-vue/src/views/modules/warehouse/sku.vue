@@ -1,22 +1,32 @@
 <template>
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item>
-                <el-input clearable placeholder="参数名" v-model="dataForm.key"></el-input>
+            <el-form-item label="warehouse">
+                <el-select
+                    clearable
+                    placeholder="Select"
+                    style="width:160px;"
+                    v-model="dataForm.wareId"
+                >
+                    <el-option :key="w.id" :label="w.name" :value="w.id" v-for="w in wareList"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="skuId">
+                <el-input clearable placeholder="skuId" v-model="dataForm.skuId"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="getDataList()">查询</el-button>
+                <el-button @click="getDataList()">Query</el-button>
                 <el-button
                     @click="addOrUpdateHandle()"
                     type="primary"
-                    v-if="isAuth('ware:wareordertask:save')"
-                >新增</el-button>
+                    v-if="isAuth('ware:waresku:save')"
+                >Add</el-button>
                 <el-button
                     :disabled="dataListSelections.length <= 0"
                     @click="deleteHandle()"
                     type="danger"
-                    v-if="isAuth('ware:wareordertask:delete')"
-                >批量删除</el-button>
+                    v-if="isAuth('ware:waresku:delete')"
+                >Batch Delete</el-button>
             </el-form-item>
         </el-form>
         <el-table
@@ -28,44 +38,40 @@
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
             <el-table-column align="center" header-align="center" label="id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="order_id" prop="orderId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="order_sn" prop="orderSn"></el-table-column>
-            <el-table-column align="center" header-align="center" label="收货人" prop="consignee"></el-table-column>
-            <el-table-column align="center" header-align="center" label="收货人电话" prop="consigneeTel"></el-table-column>
+            <el-table-column align="center" header-align="center" label="sku_id" prop="skuId"></el-table-column>
             <el-table-column
                 align="center"
                 header-align="center"
-                label="配送地址"
-                prop="deliveryAddress"
+                label="warehouse_id"
+                prop="wareId"
             ></el-table-column>
-            <el-table-column align="center" header-align="center" label="订单备注" prop="orderComment"></el-table-column>
-            <el-table-column align="center" header-align="center" label="付款方式" prop="paymentWay">
-                <template slot-scope="scope">
-                    <el-tag v-if="scope.row.payment==1">在线付款</el-tag>
-                    <el-tag v-if="scope.row.payment==2">货到付款</el-tag>
-                </template>
-            </el-table-column>
-            <el-table-column align="center" header-align="center" label="任务状态" prop="taskStatus"></el-table-column>
-            <el-table-column align="center" header-align="center" label="订单描述" prop="orderBody"></el-table-column>
-            <el-table-column align="center" header-align="center" label="物流单号" prop="trackingNo"></el-table-column>
             <el-table-column
                 align="center"
                 header-align="center"
-                label="create_time"
-                prop="createTime"
+                label="stock quantity"
+                prop="stock"
             ></el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库id" prop="wareId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="工作单备注" prop="taskComment"></el-table-column>
+            <el-table-column align="center" header-align="center" label="sku name" prop="skuName"></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="stock locked"
+                prop="stockLocked"
+            ></el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
                 header-align="center"
-                label="操作"
+                label="Action"
                 width="150"
             >
                 <template slot-scope="scope">
-                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">修改</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">删除</el-button>
+                    <el-button
+                        @click="addOrUpdateHandle(scope.row.id)"
+                        size="small"
+                        type="text"
+                    >Edit</el-button>
+                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -78,18 +84,20 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- 弹窗, 新增 / 修改 -->
+        <!-- pop-up window, add / update -->
         <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
     </div>
 </template>
 
 <script>
-    import AddOrUpdate from './wareordertask-add-or-update'
+    import AddOrUpdate from './waresku-add-or-update'
     export default {
         data () {
             return {
+                wareList: [],
                 dataForm: {
-                    key: ''
+                    wareId: '',
+                    skuId: ''
                 },
                 dataList: [],
                 pageIndex: 1,
@@ -104,19 +112,35 @@
             AddOrUpdate
         },
         activated () {
+            if (this.$route.query.skuId) {
+                this.dataForm.skuId = this.$route.query.skuId
+            }
+            this.getWares()
             this.getDataList()
         },
         methods: {
-            // 获取数据列表
+            getWares () {
+                this.$http({
+                    url: this.$http.adornUrl('/ware/warehouseinfo/list'),
+                    method: 'get',
+                    params: this.$http.adornParams({
+                        page: 1,
+                        limit: 500
+                    })
+                }).then(({ data }) => {
+                    this.wareList = data.page.list
+                })
+            },
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/ware/wareordertask/list'),
+                    url: this.$http.adornUrl('/ware/warehousesku/list'),
                     method: 'get',
                     params: this.$http.adornParams({
-                        'page': this.pageIndex,
-                        'limit': this.pageSize,
-                        'key': this.dataForm.key
+                        page: this.pageIndex,
+                        limit: this.pageSize,
+                        skuId: this.dataForm.skuId,
+                        wareId: this.dataForm.wareId
                     })
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -129,46 +153,43 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // 新增 / 修改
             addOrUpdateHandle (id) {
                 this.addOrUpdateVisible = true
                 this.$nextTick(() => {
                     this.$refs.addOrUpdate.init(id)
                 })
             },
-            // 删除
             deleteHandle (id) {
-                var ids = id ? [id] : this.dataListSelections.map(item => {
-                    return item.id
-                })
-                this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
+                var ids = id
+                    ? [id]
+                    : this.dataListSelections.map(item => {
+                        return item.id
+                    })
+                this.$confirm(`Do you want to ${id ? 'DELETE' : 'BATCH DELETE'} id=${ids.join(',')}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                     type: 'warning'
                 }).then(() => {
                     this.$http({
-                        url: this.$http.adornUrl('/ware/wareordertask/delete'),
+                        url: this.$http.adornUrl('/ware/warehousesku/delete'),
                         method: 'post',
                         data: this.$http.adornData(ids, false)
                     }).then(({ data }) => {
                         if (data && data.code === 0) {
                             this.$message({
-                                message: '操作成功',
+                                message: 'Successfully',
                                 type: 'success',
                                 duration: 1500,
                                 onClose: () => {

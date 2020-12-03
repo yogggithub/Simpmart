@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? '新增' : '修改'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
     >
         <el-form
@@ -17,43 +17,43 @@
             <el-form-item label="order_sn" prop="orderSn">
                 <el-input placeholder="order_sn" v-model="dataForm.orderSn"></el-input>
             </el-form-item>
-            <el-form-item label="收货人" prop="consignee">
-                <el-input placeholder="收货人" v-model="dataForm.consignee"></el-input>
+            <el-form-item label="consignee" prop="consignee">
+                <el-input placeholder="consignee" v-model="dataForm.consignee"></el-input>
             </el-form-item>
-            <el-form-item label="收货人电话" prop="consigneeTel">
-                <el-input placeholder="收货人电话" v-model="dataForm.consigneeTel"></el-input>
+            <el-form-item label="consignee phone" prop="consigneeTel">
+                <el-input placeholder="consignee phone" v-model="dataForm.consigneeTel"></el-input>
             </el-form-item>
-            <el-form-item label="配送地址" prop="deliveryAddress">
-                <el-input placeholder="配送地址" v-model="dataForm.deliveryAddress"></el-input>
+            <el-form-item label="delivery address" prop="deliveryAddress">
+                <el-input placeholder="delivery address" v-model="dataForm.deliveryAddress"></el-input>
             </el-form-item>
-            <el-form-item label="订单备注" prop="orderComment">
-                <el-input placeholder="订单备注" v-model="dataForm.orderComment"></el-input>
+            <el-form-item label="order comment" prop="orderComment">
+                <el-input placeholder="order comment" v-model="dataForm.orderComment"></el-input>
             </el-form-item>
-            <el-form-item label="付款方式【 1:在线付款 2:货到付款】" prop="paymentWay">
-                <el-input placeholder="付款方式【 1:在线付款 2:货到付款】" v-model="dataForm.paymentWay"></el-input>
+            <el-form-item label="payment" prop="paymentWay">
+                <el-input placeholder="payment" v-model="dataForm.paymentWay"></el-input>
             </el-form-item>
-            <el-form-item label="任务状态" prop="taskStatus">
-                <el-input placeholder="任务状态" v-model="dataForm.taskStatus"></el-input>
+            <el-form-item label="task status" prop="taskStatus">
+                <el-input placeholder="task status" v-model="dataForm.taskStatus"></el-input>
             </el-form-item>
-            <el-form-item label="订单描述" prop="orderBody">
-                <el-input placeholder="订单描述" v-model="dataForm.orderBody"></el-input>
+            <el-form-item label="order description" prop="orderBody">
+                <el-input placeholder="order description" v-model="dataForm.orderBody"></el-input>
             </el-form-item>
-            <el-form-item label="物流单号" prop="trackingNo">
-                <el-input placeholder="物流单号" v-model="dataForm.trackingNo"></el-input>
+            <el-form-item label="delivery tracking" prop="trackingNo">
+                <el-input placeholder="delivery tracking" v-model="dataForm.trackingNo"></el-input>
             </el-form-item>
             <el-form-item label="create_time" prop="createTime">
                 <el-input placeholder="create_time" v-model="dataForm.createTime"></el-input>
             </el-form-item>
-            <el-form-item label="仓库id" prop="wareId">
-                <el-input placeholder="仓库id" v-model="dataForm.wareId"></el-input>
+            <el-form-item label="warehouse id" prop="wareId">
+                <el-input placeholder="warehouseid" v-model="dataForm.wareId"></el-input>
             </el-form-item>
-            <el-form-item label="工作单备注" prop="taskComment">
-                <el-input placeholder="工作单备注" v-model="dataForm.taskComment"></el-input>
+            <el-form-item label="task comment" prop="taskComment">
+                <el-input placeholder="task comment" v-model="dataForm.taskComment"></el-input>
             </el-form-item>
         </el-form>
         <span class="dialog-footer" slot="footer">
-            <el-button @click="visible = false">取消</el-button>
-            <el-button @click="dataFormSubmit()" type="primary">确定</el-button>
+            <el-button @click="visible = false">Cancel</el-button>
+            <el-button @click="dataFormSubmit()" type="primary">Confirm</el-button>
         </span>
     </el-dialog>
 </template>
@@ -81,43 +81,43 @@
                 },
                 dataRule: {
                     orderId: [
-                        { required: true, message: 'order_id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     orderSn: [
-                        { required: true, message: 'order_sn不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     consignee: [
-                        { required: true, message: '收货人不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     consigneeTel: [
-                        { required: true, message: '收货人电话不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     deliveryAddress: [
-                        { required: true, message: '配送地址不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     orderComment: [
-                        { required: true, message: '订单备注不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     paymentWay: [
-                        { required: true, message: '付款方式【 1:在线付款 2:货到付款】不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     taskStatus: [
-                        { required: true, message: '任务状态不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     orderBody: [
-                        { required: true, message: '订单描述不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     trackingNo: [
-                        { required: true, message: '物流单号不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     createTime: [
-                        { required: true, message: 'create_time不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     wareId: [
-                        { required: true, message: '仓库id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     taskComment: [
-                        { required: true, message: '工作单备注不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ]
                 }
             }
@@ -153,7 +153,6 @@
                     }
                 })
             },
-            // 表单提交
             dataFormSubmit () {
                 this.$refs['dataForm'].validate((valid) => {
                     if (valid) {
@@ -179,7 +178,7 @@
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
                                 this.$message({
-                                    message: '操作成功',
+                                    message: 'Successfully',
                                     type: 'success',
                                     duration: 1500,
                                     onClose: () => {

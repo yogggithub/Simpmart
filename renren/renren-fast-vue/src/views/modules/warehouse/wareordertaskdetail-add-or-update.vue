@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? '新增' : '修改'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
     >
         <el-form
@@ -11,19 +11,22 @@
             label-width="120px"
             ref="dataForm"
         >
-            <el-form-item label="仓库名" prop="name">
-                <el-input placeholder="仓库名" v-model="dataForm.name"></el-input>
+            <el-form-item label="sku id" prop="skuId">
+                <el-input placeholder="sku id" v-model="dataForm.skuId"></el-input>
             </el-form-item>
-            <el-form-item label="仓库地址" prop="address">
-                <el-input placeholder="仓库地址" v-model="dataForm.address"></el-input>
+            <el-form-item label="sku name" prop="skuName">
+                <el-input placeholder="sku name" v-model="dataForm.skuName"></el-input>
             </el-form-item>
-            <el-form-item label="区域编码" prop="areacode">
-                <el-input placeholder="区域编码" v-model="dataForm.areacode"></el-input>
+            <el-form-item label="order quantity" prop="skuNum">
+                <el-input placeholder="order quantity" v-model="dataForm.skuNum"></el-input>
+            </el-form-item>
+            <el-form-item label="task id" prop="taskId">
+                <el-input placeholder="task id" v-model="dataForm.taskId"></el-input>
             </el-form-item>
         </el-form>
         <span class="dialog-footer" slot="footer">
-            <el-button @click="visible = false">取消</el-button>
-            <el-button @click="dataFormSubmit()" type="primary">确定</el-button>
+            <el-button @click="visible = false">Cancel</el-button>
+            <el-button @click="dataFormSubmit()" type="primary">Confirm</el-button>
         </span>
     </el-dialog>
 </template>
@@ -35,19 +38,23 @@
                 visible: false,
                 dataForm: {
                     id: 0,
-                    name: '',
-                    address: '',
-                    areacode: ''
+                    skuId: '',
+                    skuName: '',
+                    skuNum: '',
+                    taskId: ''
                 },
                 dataRule: {
-                    name: [
-                        { required: true, message: '仓库名不能为空', trigger: 'blur' }
+                    skuId: [
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
-                    address: [
-                        { required: true, message: '仓库地址不能为空', trigger: 'blur' }
+                    skuName: [
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
-                    areacode: [
-                        { required: true, message: '区域编码不能为空', trigger: 'blur' }
+                    skuNum: [
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
+                    ],
+                    taskId: [
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ]
                 }
             }
@@ -60,36 +67,37 @@
                     this.$refs['dataForm'].resetFields()
                     if (this.dataForm.id) {
                         this.$http({
-                            url: this.$http.adornUrl(`/ware/wareinfo/info/${this.dataForm.id}`),
+                            url: this.$http.adornUrl(`/ware/wareordertaskdetail/info/${this.dataForm.id}`),
                             method: 'get',
                             params: this.$http.adornParams()
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
-                                this.dataForm.name = data.wareInfo.name
-                                this.dataForm.address = data.wareInfo.address
-                                this.dataForm.areacode = data.wareInfo.areacode
+                                this.dataForm.skuId = data.wareOrderTaskDetail.skuId
+                                this.dataForm.skuName = data.wareOrderTaskDetail.skuName
+                                this.dataForm.skuNum = data.wareOrderTaskDetail.skuNum
+                                this.dataForm.taskId = data.wareOrderTaskDetail.taskId
                             }
                         })
                     }
                 })
             },
-            // 表单提交
             dataFormSubmit () {
                 this.$refs['dataForm'].validate((valid) => {
                     if (valid) {
                         this.$http({
-                            url: this.$http.adornUrl(`/ware/wareinfo/${!this.dataForm.id ? 'save' : 'update'}`),
+                            url: this.$http.adornUrl(`/ware/wareordertaskdetail/${!this.dataForm.id ? 'save' : 'update'}`),
                             method: 'post',
                             data: this.$http.adornData({
                                 'id': this.dataForm.id || undefined,
-                                'name': this.dataForm.name,
-                                'address': this.dataForm.address,
-                                'areacode': this.dataForm.areacode
+                                'skuId': this.dataForm.skuId,
+                                'skuName': this.dataForm.skuName,
+                                'skuNum': this.dataForm.skuNum,
+                                'taskId': this.dataForm.taskId
                             })
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
                                 this.$message({
-                                    message: '操作成功',
+                                    message: 'Successfully',
                                     type: 'success',
                                     duration: 1500,
                                     onClose: () => {

@@ -1,19 +1,14 @@
 package com.simpmart.commodity.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-    import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.simpmart.commodity.entity.SkuInfoEntity;
 import com.simpmart.commodity.service.SkuInfoService;
 import com.simpmart.common.utils.PageUtils;
 import com.simpmart.common.utils.R;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -31,11 +26,12 @@ public class SkuInfoController {
 
     /**
      * List
+     * modified to achieve complicate fuzzy search
      */
     @RequestMapping("/list")
     //@RequiresPermissions("commodity:skuinfo:list")
     public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = skuInfoService.queryPage(params);
+        PageUtils page = skuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }

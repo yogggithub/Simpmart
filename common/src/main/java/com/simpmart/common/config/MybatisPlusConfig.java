@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MybatisPlusConfig {
     /**
-     * mybatis-plus分页插件
+     * mybatis-plus paged plugin
      */
     @Bean
     public PaginationInterceptor paginationInterceptor() {

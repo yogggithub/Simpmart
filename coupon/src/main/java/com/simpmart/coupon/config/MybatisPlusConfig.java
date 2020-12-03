@@ -1,4 +1,4 @@
-package com.simpmart.commodity.config;
+package com.simpmart.coupon.config;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.springframework.context.annotation.Bean;

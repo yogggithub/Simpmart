@@ -4,7 +4,7 @@ import com.simpmart.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@FeignClient("coupon")
+@FeignClient("gateway")
 // argument is the name of the serice be called
 public interface CouponFeignService {
     /**
@@ -13,6 +13,6 @@ public interface CouponFeignService {
      * i.e. there are prefix for the controller in coupon model
      * @return
      */
-    @RequestMapping("/coupon/coupon/member/couponlist")
+    @RequestMapping("/api/coupon/coupon/member/couponlist")
     R memberCoupon();
 }

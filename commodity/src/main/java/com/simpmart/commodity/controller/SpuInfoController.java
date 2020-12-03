@@ -27,18 +27,19 @@ public class SpuInfoController {
 
     /**
      * List
+     * modified to achieve fuzzy and complicate search
      */
     @RequestMapping("/list")
     //@RequiresPermissions("commodity:spuinfo:list")
     public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }
 
 
     /**
-     * Infomation
+     * Information
      */
     @RequestMapping("/info/{id}")
     //@RequiresPermissions("commodity:spuinfo:info")

@@ -1,6 +1,6 @@
 package com.simpmart.common.constant;
 
-public class CommodityCons {
+public class CommodityConst {
     public enum AttrEnum {
         ATTR_TYPE_BASE(1, "Basic Attribute"),
         ATTR_TYPE_SALE(0, "Sale Attribute");

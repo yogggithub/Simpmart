@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? 'Add' : 'Edit'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
         @closed="dialogClose"
     >

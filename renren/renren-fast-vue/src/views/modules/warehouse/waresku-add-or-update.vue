@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? '新增' : '修改'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
     >
         <el-form
@@ -14,24 +14,24 @@
             <el-form-item label="sku_id" prop="skuId">
                 <el-input placeholder="sku_id" v-model="dataForm.skuId"></el-input>
             </el-form-item>
-            <el-form-item label="仓库" prop="wareId">
-                <el-select clearable placeholder="请选择仓库" v-model="dataForm.wareId">
+            <el-form-item label="warehouse" prop="wareId">
+                <el-select clearable placeholder="Select" v-model="dataForm.wareId">
                     <el-option :key="w.id" :label="w.name" :value="w.id" v-for="w in wareList"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="库存数" prop="stock">
-                <el-input placeholder="库存数" v-model="dataForm.stock"></el-input>
+            <el-form-item label="stock quantity" prop="stock">
+                <el-input placeholder="stock quantity" v-model="dataForm.stock"></el-input>
             </el-form-item>
-            <el-form-item label="sku_name" prop="skuName">
-                <el-input placeholder="sku_name" v-model="dataForm.skuName"></el-input>
+            <el-form-item label="sku name" prop="skuName">
+                <el-input placeholder="sku name" v-model="dataForm.skuName"></el-input>
             </el-form-item>
-            <el-form-item label="锁定库存" prop="stockLocked">
-                <el-input placeholder="锁定库存" v-model="dataForm.stockLocked"></el-input>
+            <el-form-item label="stock locked" prop="stockLocked">
+                <el-input placeholder="stock locked" v-model="dataForm.stockLocked"></el-input>
             </el-form-item>
         </el-form>
         <span class="dialog-footer" slot="footer">
-            <el-button @click="visible = false">取消</el-button>
-            <el-button @click="dataFormSubmit()" type="primary">确定</el-button>
+            <el-button @click="visible = false">Cancel</el-button>
+            <el-button @click="dataFormSubmit()" type="primary">Confirm</el-button>
         </span>
     </el-dialog>
 </template>
@@ -51,13 +51,13 @@
                     stockLocked: 0
                 },
                 dataRule: {
-                    skuId: [{ required: true, message: 'sku_id不能为空', trigger: 'blur' }],
+                    skuId: [{ required: true, message: 'Can not be empty', trigger: 'blur' }],
                     wareId: [
-                        { required: true, message: '仓库id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
-                    stock: [{ required: true, message: '库存数不能为空', trigger: 'blur' }],
+                    stock: [{ required: true, message: 'Can not be empty', trigger: 'blur' }],
                     skuName: [
-                        { required: true, message: 'sku_name不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ]
                 }
             }
@@ -100,7 +100,6 @@
                     }
                 })
             },
-            // 表单提交
             dataFormSubmit () {
                 this.$refs['dataForm'].validate(valid => {
                     if (valid) {
@@ -120,7 +119,7 @@
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
                                 this.$message({
-                                    message: '操作成功',
+                                    message: 'Successfully',
                                     type: 'success',
                                     duration: 1500,
                                     onClose: () => {

@@ -1,36 +1,41 @@
 <template>
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item label="状态">
+            <el-form-item label="status">
                 <el-select
                     clearable
-                    placeholder="请选择状态"
+                    placeholder="Select"
                     style="width:120px;"
                     v-model="dataForm.status"
                 >
-                    <el-option :value="0" label="新建"></el-option>
-                    <el-option :value="1" label="已分配"></el-option>
-                    <el-option :value="2" label="已领取"></el-option>
-                    <el-option :value="3" label="已完成"></el-option>
-                    <el-option :value="4" label="有异常"></el-option>
+                    <el-option :value="0" label="created"></el-option>
+                    <el-option :value="1" label="assigned"></el-option>
+                    <el-option :value="2" label="received"></el-option>
+                    <el-option :value="3" label="finished"></el-option>
+                    <el-option :value="4" label="failure"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="关键字">
-                <el-input clearable placeholder="参数名" style="width:120px;" v-model="dataForm.key"></el-input>
+            <el-form-item label="key word">
+                <el-input
+                    clearable
+                    placeholder="parameter"
+                    style="width:120px;"
+                    v-model="dataForm.key"
+                ></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="getDataList()">查询</el-button>
+                <el-button @click="getDataList()">Query</el-button>
                 <el-button
                     @click="addOrUpdateHandle()"
                     type="primary"
                     v-if="isAuth('ware:purchase:save')"
-                >新增</el-button>
+                >Add</el-button>
                 <el-button
                     :disabled="dataListSelections.length <= 0"
                     @click="deleteHandle()"
                     type="danger"
                     v-if="isAuth('ware:purchase:delete')"
-                >批量删除</el-button>
+                >Batch Delete</el-button>
             </el-form-item>
         </el-form>
         <el-table
@@ -41,29 +46,49 @@
             v-loading="dataListLoading"
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购单id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购人id" prop="assigneeId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购人名" prop="assigneeName"></el-table-column>
-            <el-table-column align="center" header-align="center" label="联系方式" prop="phone"></el-table-column>
-            <el-table-column align="center" header-align="center" label="优先级" prop="priority"></el-table-column>
-            <el-table-column align="center" header-align="center" label="状态" prop="status">
+            <el-table-column align="center" header-align="center" label="purchase order id" prop="id"></el-table-column>
+            <el-table-column align="center" header-align="center" label="purchase staff id" prop="assigneeId"></el-table-column>
+            <el-table-column align="center" header-align="center" label="purchase staff name" prop="assigneeName"></el-table-column>
+            <el-table-column align="center" header-align="center" label="contact information" prop="phone"></el-table-column>
+            <el-table-column align="center" header-align="center" label="priority" prop="priority"></el-table-column>
+            <el-table-column align="center" header-align="center" label="status" prop="status">
                 <template slot-scope="scope">
-                    <el-tag v-if="scope.row.status == 0">新建</el-tag>
-                    <el-tag type="info" v-if="scope.row.status == 1">已分配</el-tag>
-                    <el-tag type="warning" v-if="scope.row.status == 2">已领取</el-tag>
-                    <el-tag type="success" v-if="scope.row.status == 3">已完成</el-tag>
-                    <el-tag type="danger" v-if="scope.row.status == 4">有异常</el-tag>
+                    <el-tag v-if="scope.row.status == 0">created</el-tag>
+                    <el-tag type="info" v-if="scope.row.status == 1">assigned</el-tag>
+                    <el-tag type="warning" v-if="scope.row.status == 2">received</el-tag>
+                    <el-tag type="success" v-if="scope.row.status == 3">finished</el-tag>
+                    <el-tag type="danger" v-if="scope.row.status == 4">failure</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库id" prop="wareId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="总金额" prop="amount"></el-table-column>
-            <el-table-column align="center" header-align="center" label="创建日期" prop="createTime"></el-table-column>
-            <el-table-column align="center" header-align="center" label="更新日期" prop="updateTime"></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="warehouse id"
+                prop="wareId"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="total amount"
+                prop="amount"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="create time"
+                prop="createTime"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="update time"
+                prop="updateTime"
+            ></el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
                 header-align="center"
-                label="操作"
+                label="Action"
                 width="150"
             >
                 <template slot-scope="scope">
@@ -72,9 +97,13 @@
                         size="small"
                         type="text"
                         v-if="scope.row.status==0||scope.row.status==1"
-                    >分配</el-button>
-                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">修改</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">删除</el-button>
+                    >Assign</el-button>
+                    <el-button
+                        @click="addOrUpdateHandle(scope.row.id)"
+                        size="small"
+                        type="text"
+                    >Edit</el-button>
+                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -87,10 +116,14 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- 弹窗, 新增 / 修改 -->
+        <!-- pop-up window, add / update -->
         <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
-        <el-dialog :visible.sync="caigoudialogVisible" title="分配采购人员" width="30%">
-            <el-select filterable placeholder="请选择" v-model="userId">
+        <el-dialog
+            :visible.sync="caigoudialogVisible"
+            title="Assigning Procurement Staff"
+            width="30%"
+        >
+            <el-select filterable placeholder="Select" v-model="userId">
                 <el-option
                     :key="item.userId"
                     :label="item.username"
@@ -99,8 +132,8 @@
                 ></el-option>
             </el-select>
             <span class="dialog-footer" slot="footer">
-                <el-button @click="caigoudialogVisible = false">取 消</el-button>
-                <el-button @click="assignUser" type="primary">确 定</el-button>
+                <el-button @click="caigoudialogVisible = false">Cancel</el-button>
+                <el-button @click="assignUser" type="primary">Confirm</el-button>
             </span>
         </el-dialog>
     </div>
@@ -167,7 +200,7 @@
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
                         this.$message({
-                            message: '操作成功',
+                            message: 'Successfully',
                             type: 'success',
                             duration: 1500
                         })
@@ -191,7 +224,6 @@
                     this.userList = data.page.list
                 })
             },
-            // 获取数据列表
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
@@ -213,44 +245,35 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // 新增 / 修改
             addOrUpdateHandle (id) {
                 this.addOrUpdateVisible = true
                 this.$nextTick(() => {
                     this.$refs.addOrUpdate.init(id)
                 })
             },
-            // 删除
             deleteHandle (id) {
                 var ids = id
                     ? [id]
                     : this.dataListSelections.map(item => {
                         return item.id
                     })
-                this.$confirm(
-                    `确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`,
-                    '提示',
-                    {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }
-                ).then(() => {
+                this.$confirm(`Do you want to ${id ? 'DELETE' : 'BATCH DELETE'} id=${ids.join(',')}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
                     this.$http({
                         url: this.$http.adornUrl('/ware/purchase/delete'),
                         method: 'post',
@@ -258,7 +281,7 @@
                     }).then(({ data }) => {
                         if (data && data.code === 0) {
                             this.$message({
-                                message: '操作成功',
+                                message: 'Successfully',
                                 type: 'success',
                                 duration: 1500,
                                 onClose: () => {

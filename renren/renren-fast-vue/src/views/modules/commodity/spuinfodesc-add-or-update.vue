@@ -33,7 +33,7 @@
                 },
                 dataRule: {
                     decript: [
-                        { required: true, message: 'product description can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ]
                 }
             }

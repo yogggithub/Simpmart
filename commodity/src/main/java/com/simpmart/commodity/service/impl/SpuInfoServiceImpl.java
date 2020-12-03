@@ -1,6 +1,7 @@
 package com.simpmart.commodity.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.simpmart.commodity.dao.SpuInfoDao;
@@ -11,6 +12,7 @@ import com.simpmart.commodity.service.*;
 import com.simpmart.commodity.vo.ImagesVo;
 import com.simpmart.commodity.vo.SkusVo;
 import com.simpmart.commodity.vo.SpuSaveVo;
+import com.simpmart.common.to.MemberPriceTo;
 import com.simpmart.common.to.SkuPromotionTo;
 import com.simpmart.common.to.SpuBoundsTo;
 import com.simpmart.common.utils.PageUtils;
@@ -19,10 +21,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 
@@ -105,7 +110,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         if (skusVos != null && skusVos.size() > 0) {
 
             // sku_info
-            skusVos.stream().map(skusVo -> {
+            skusVos.forEach(skusVo -> {
                 SkuInfoEntity skuInfoEntity = new SkuInfoEntity();
                 BeanUtils.copyProperties(skusVo, skuInfoEntity);
                 skuInfoEntity.setBrandId(spuInfoEntity.getBrandId());
@@ -129,7 +134,10 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                             imagesEntity.setImgUrl(img.getImgUrl());
                             imagesEntity.setDefaultImg(img.getDefaultImg());
                             return imagesEntity;
-                        }).collect(Collectors.toList());
+                        })
+                              // only keep image that have non-empty url
+                              .filter(img -> !StringUtils.isEmpty(img.getImgUrl()))
+                              .collect(Collectors.toList());
                 skuImagesService.saveBatch(imagesEntities);
 
                 //sku_sale_attr_value
@@ -145,7 +153,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
                 // 6. sales info: related to other database simp_prom
-                // sku_ladder / sku_full_reduction / member_price
                 // spu_bounds
                 SpuBoundsTo spuBoundsTo = new SpuBoundsTo();
                 spuBoundsTo.setSpuId(spuInfoEntity.getId());
@@ -153,13 +160,43 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 couponSpuFeignService.saveSpuBounds(spuBoundsTo);
 
                 SkuPromotionTo skuPromotionTo = new SkuPromotionTo();
-                BeanUtils.copyProperties(skusVo, skuPromotionTo);
+                // it's wired that cannot convert member price Vo to To
+                // although they are the same
+                skuPromotionTo.setCountStatus(skusVo.getCountStatus());
+                skuPromotionTo.setDiscount(skusVo.getDiscount());
+                skuPromotionTo.setFullCount(skusVo.getFullCount());
+                skuPromotionTo.setFullPrice(skusVo.getFullPrice());
+                skuPromotionTo.setMemberPrice(
+                        skusVo.getMemberPrice()
+                              .stream().map(price -> {
+                            MemberPriceTo memberPriceTo = new MemberPriceTo();
+                            BeanUtils.copyProperties(price, memberPriceTo);
+                            return memberPriceTo;
+                        }).collect(Collectors.toList()));
+                skuPromotionTo.setPriceStatus(skusVo.getPriceStatus());
+                skuPromotionTo.setReducePrice(skusVo.getReducePrice());
+
                 skuPromotionTo.setSkuId(skuInfoEntity.getSkuId());
-                couponSpuFeignService.saveSkuPromotion(skuPromotionTo);
+                // only keep meaningful promotions
+                // i.e. full count > 0 OR full price > 0 OR member price > 0
 
-                return null;
+                // because memberprice is a list, so need to justify in a loop
+                AtomicBoolean validMemberPrice = new AtomicBoolean(false);
+                skuPromotionTo.getMemberPrice()
+                              .forEach(price -> {
+                                  if (price.getPrice().compareTo(new BigDecimal(0)) > 0) {
+                                      validMemberPrice.set(true);
+                                  }
+                              });
+
+                if (skuPromotionTo.getFullCount() > 0 ||
+                    skuPromotionTo.getFullPrice()
+                                  .compareTo(new BigDecimal(0)) > 0 ||
+                    validMemberPrice.get()) {
+
+                    couponSpuFeignService.saveSkuPromotion(skuPromotionTo);
+                }
             });
-
         }
     }
 
@@ -182,5 +219,46 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         this.spuInfoDescDao.insert(spuInfoDescEntity);
     }
 
+    /**
+     * @param params
+     * @return
+     */
+    @Override
+    public PageUtils queryPageByCondition(Map<String, Object> params) {
+        LambdaUpdateWrapper<SpuInfoEntity> wrapper = new LambdaUpdateWrapper<SpuInfoEntity>();
 
+        String key = (String) params.get("key");
+
+        if (!StringUtils.isEmpty(key)) {
+            wrapper.and(w -> {
+                w.like(SpuInfoEntity::getSpuName, key)
+                 .or().like(SpuInfoEntity::getSpuDescription, key);
+                if (key.matches("^[0-9]+$")) {
+                    w.or().eq(SpuInfoEntity::getId, key)
+                     .or().eq(SpuInfoEntity::getBrandId, key)
+                     .or().eq(SpuInfoEntity::getCatalogId, key);
+                }
+            });
+        }
+        String catalogId = (String) params.get("catalogId");
+        if (!StringUtils.isEmpty(catalogId) &&
+            !catalogId.equalsIgnoreCase("0")) {
+            wrapper.eq(SpuInfoEntity::getCatalogId, catalogId);
+        }
+        String brandId = (String) params.get("brandId");
+        if (!StringUtils.isEmpty(brandId) &&
+            !brandId.equalsIgnoreCase("0")) {
+            wrapper.eq(SpuInfoEntity::getBrandId, brandId);
+        }
+        String status = (String) params.get("status");
+        if (!StringUtils.isEmpty(status)) {
+            wrapper.eq(SpuInfoEntity::getPublishStatus, status);
+        }
+
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                wrapper);
+
+        return new PageUtils(page);
+    }
 }

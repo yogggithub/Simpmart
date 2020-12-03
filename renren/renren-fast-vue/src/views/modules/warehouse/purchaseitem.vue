@@ -1,51 +1,56 @@
 <template>
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item label="仓库">
+            <el-form-item label="warehouse">
                 <el-select
                     clearable
-                    placeholder="请选择仓库"
+                    placeholder="Select"
                     style="width:120px;"
                     v-model="dataForm.wareId"
                 >
                     <el-option :key="w.id" :label="w.name" :value="w.id" v-for="w in wareList"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="status">
                 <el-select
                     clearable
-                    placeholder="请选择状态"
+                    placeholder="Select"
                     style="width:120px;"
                     v-model="dataForm.status"
                 >
-                    <el-option :value="0" label="新建"></el-option>
-                    <el-option :value="1" label="已分配"></el-option>
-                    <el-option :value="2" label="正在采购"></el-option>
-                    <el-option :value="3" label="已完成"></el-option>
-                    <el-option :value="4" label="采购失败"></el-option>
+                    <el-option :value="0" label="created"></el-option>
+                    <el-option :value="1" label="assigned"></el-option>
+                    <el-option :value="2" label="purchasing"></el-option>
+                    <el-option :value="3" label="finished"></el-option>
+                    <el-option :value="4" label="failure"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="关键字">
-                <el-input clearable placeholder="参数名" style="width:120px;" v-model="dataForm.key"></el-input>
+            <el-form-item label="key word">
+                <el-input
+                    clearable
+                    placeholder="parameter"
+                    style="width:120px;"
+                    v-model="dataForm.key"
+                ></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button @click="getDataList()">查询</el-button>
+                <el-button @click="getDataList()">Query</el-button>
                 <el-button
                     @click="addOrUpdateHandle()"
                     type="primary"
                     v-if="isAuth('ware:purchasedetail:save')"
-                >新增</el-button>
+                >Add</el-button>
                 <el-dropdown
                     :disabled="dataListSelections.length <= 0"
                     @command="handleBatchCommand"
                 >
                     <el-button type="danger">
-                        批量操作
+                        Batch
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="delete">批量删除</el-dropdown-item>
-                        <el-dropdown-item command="merge">合并整单</el-dropdown-item>
+                        <el-dropdown-item command="delete">Delete</el-dropdown-item>
+                        <el-dropdown-item command="merge">Merge</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </el-form-item>
@@ -59,30 +64,59 @@
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
             <el-table-column align="center" header-align="center" label="id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购单id" prop="purchaseId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购商品id" prop="skuId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购数量" prop="skuNum"></el-table-column>
-            <el-table-column align="center" header-align="center" label="采购金额" prop="skuPrice"></el-table-column>
-            <el-table-column align="center" header-align="center" label="仓库id" prop="wareId"></el-table-column>
-            <el-table-column align="center" header-align="center" label="状态" prop="status">
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="purchase order id"
+                prop="purchaseId"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="purchase sku id"
+                prop="skuId"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="purchase quantity"
+                prop="skuNum"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="purchase amount"
+                prop="skuPrice"
+            ></el-table-column>
+            <el-table-column
+                align="center"
+                header-align="center"
+                label="warehouse id"
+                prop="wareId"
+            ></el-table-column>
+            <el-table-column align="center" header-align="center" label="status" prop="status">
                 <template slot-scope="scope">
-                    <el-tag v-if="scope.row.status==0">新建</el-tag>
-                    <el-tag type="info" v-if="scope.row.status==1">已分配</el-tag>
-                    <el-tag type="wanring" v-if="scope.row.status==2">正在采购</el-tag>
-                    <el-tag type="success" v-if="scope.row.status==3">已完成</el-tag>
-                    <el-tag type="danger" v-if="scope.row.status==4">采购失败</el-tag>
+                    <el-tag v-if="scope.row.status==0">created</el-tag>
+                    <el-tag type="info" v-if="scope.row.status==1">assigned</el-tag>
+                    <el-tag type="wanring" v-if="scope.row.status==2">purchasing</el-tag>
+                    <el-tag type="success" v-if="scope.row.status==3">finished</el-tag>
+                    <el-tag type="danger" v-if="scope.row.status==4">failure</el-tag>
                 </template>
             </el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
                 header-align="center"
-                label="操作"
+                label="Action"
                 width="150"
             >
                 <template slot-scope="scope">
-                    <el-button @click="addOrUpdateHandle(scope.row.id)" size="small" type="text">修改</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">删除</el-button>
+                    <el-button
+                        @click="addOrUpdateHandle(scope.row.id)"
+                        size="small"
+                        type="text"
+                    >Edit</el-button>
+                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -95,11 +129,11 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- 弹窗, 新增 / 修改 -->
+        <!-- pop-up window, add / update -->
         <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
-        <el-dialog :visible.sync="mergedialogVisible" title="合并到整单">
+        <el-dialog :visible.sync="mergedialogVisible" title="Merge">
             <!-- id  assignee_id  assignee_name  phone   priority status -->
-            <el-select clearable filterable placeholder="请选择" v-model="purchaseId">
+            <el-select clearable filterable placeholder="Select" v-model="purchaseId">
                 <el-option
                     :key="item.id"
                     :label="item.id"
@@ -113,8 +147,8 @@
                 </el-option>
             </el-select>
             <span class="dialog-footer" slot="footer">
-                <el-button @click="mergedialogVisible = false">取 消</el-button>
-                <el-button @click="mergeItem" type="primary">确 定</el-button>
+                <el-button @click="mergedialogVisible = false">Cancel</el-button>
+                <el-button @click="mergeItem" type="primary">Confirm</el-button>
             </span>
         </el-dialog>
     </div>
@@ -156,25 +190,19 @@
                     return item.id
                 })
                 if (!this.purchaseId) {
-                    this.$confirm(
-                        '没有选择任何【采购单】，将自动创建新单进行合并。确认吗？',
-                        '提示',
-                        {
-                            confirmButtonText: '确定',
-                            cancelButtonText: '取消',
-                            type: 'warning'
-                        }
-                    )
-                        .then(() => {
-                            this.$http({
-                                url: this.$http.adornUrl('/ware/purchase/merge'),
-                                method: 'post',
-                                data: this.$http.adornData({ items: items }, false)
-                            }).then(({ data }) => {
-                                this.getDataList()
-                            })
+                    this.$confirm('No Purchase Order is selected, a new order will be created automatically for consolidation', 'Warning', {
+                        confirmButtonText: 'Confirm',
+                        cancelButtonText: 'Cancel',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$http({
+                            url: this.$http.adornUrl('/ware/purchase/merge'),
+                            method: 'post',
+                            data: this.$http.adornData({ items: items }, false)
+                        }).then(({ data }) => {
+                            this.getDataList()
                         })
-                        .catch(() => { })
+                    }).catch(() => { })
                 } else {
                     this.$http({
                         url: this.$http.adornUrl('/ware/purchase/merge'),
@@ -191,7 +219,7 @@
             },
             getUnreceivedPurchase () {
                 this.$http({
-                    url: this.$http.adornUrl('/ware/purchase/unreceive/list'),
+                    url: this.$http.adornUrl('/ware/purchase/unreceived/list'),
                     method: 'get',
                     params: this.$http.adornParams({})
                 }).then(({ data }) => {
@@ -207,8 +235,8 @@
                         this.getUnreceivedPurchase()
                         this.mergedialogVisible = true
                     } else {
-                        this.$alert('请先选择需要合并的需求', '提示', {
-                            confirmButtonText: '确定',
+                        this.$alert('Please select the requirements to be merged first', 'Warning', {
+                            confirmButtonText: 'Confirm',
                             callback: action => { }
                         })
                     }
@@ -216,7 +244,7 @@
             },
             getWares () {
                 this.$http({
-                    url: this.$http.adornUrl('/ware/wareinfo/list'),
+                    url: this.$http.adornUrl('/ware/warehouseinfo/list'),
                     method: 'get',
                     params: this.$http.adornParams({
                         page: 1,
@@ -226,7 +254,6 @@
                     this.wareList = data.page.list
                 })
             },
-            // 获取数据列表
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
@@ -250,44 +277,35 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // 新增 / 修改
             addOrUpdateHandle (id) {
                 this.addOrUpdateVisible = true
                 this.$nextTick(() => {
                     this.$refs.addOrUpdate.init(id)
                 })
             },
-            // 删除
             deleteHandle (id) {
                 var ids = id
                     ? [id]
                     : this.dataListSelections.map(item => {
                         return item.id
                     })
-                this.$confirm(
-                    `确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`,
-                    '提示',
-                    {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }
-                ).then(() => {
+                this.$confirm(`Do you want to ${id ? 'DELETE' : 'BATCH DELETE'} id=${ids.join(',')}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
                     this.$http({
                         url: this.$http.adornUrl('/ware/purchasedetail/delete'),
                         method: 'post',
@@ -295,7 +313,7 @@
                     }).then(({ data }) => {
                         if (data && data.code === 0) {
                             this.$message({
-                                message: '操作成功',
+                                message: 'Successfully',
                                 type: 'success',
                                 duration: 1500,
                                 onClose: () => {

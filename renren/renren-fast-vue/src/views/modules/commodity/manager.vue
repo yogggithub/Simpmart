@@ -2,21 +2,21 @@
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
             <el-form :inline="true" :model="dataForm">
-                <el-form-item label="分类">
-                    <category-cascader :catelogPath.sync="catelogPath"></category-cascader>
+                <el-form-item label="catalog">
+                    <category-cascader :catalogPath.sync="catalogPath"></category-cascader>
                 </el-form-item>
-                <el-form-item label="品牌">
+                <el-form-item label="brand">
                     <brand-select style="width:160px"></brand-select>
                 </el-form-item>
-                <el-form-item label="价格">
+                <el-form-item label="price">
                     <el-input-number :min="0" style="width:160px" v-model="dataForm.price.min"></el-input-number>-
                     <el-input-number :min="0" style="width:160px" v-model="dataForm.price.max"></el-input-number>
                 </el-form-item>
-                <el-form-item label="检索">
+                <el-form-item label="search">
                     <el-input clearable style="width:160px" v-model="dataForm.key"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button @click="searchSkuInfo" type="primary">查询</el-button>
+                    <el-button @click="searchSkuInfo" type="primary">Query</el-button>
                 </el-form-item>
             </el-form>
         </el-form>
@@ -107,7 +107,7 @@
                 dataForm: {
                     key: '',
                     brandId: 0,
-                    catelogId: 0,
+                    catalogId: 0,
                     price: {
                         min: 0,
                         max: 0
@@ -120,7 +120,7 @@
                 dataListLoading: false,
                 dataListSelections: [],
                 addOrUpdateVisible: false,
-                catelogPath: []
+                catalogPath: []
             }
         },
         components: {
@@ -134,7 +134,6 @@
             getSkuDetails (row, expand) {
                 // sku详情查询
             },
-            // 处理更多指令
             handleCommand (row, command) {
                 if (command === 'stockSettings') {
                     this.$router.push({ path: '/ware-sku', query: { skuId: row.skuId } })
@@ -143,17 +142,16 @@
             searchSkuInfo () {
                 this.getDataList()
             },
-            // 获取数据列表
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/product/skuinfo/list'),
+                    url: this.$http.adornUrl('/commodity/skuinfo/list'),
                     method: 'get',
                     params: this.$http.adornParams({
                         page: this.pageIndex,
                         limit: this.pageSize,
                         key: this.dataForm.key,
-                        catelogId: this.dataForm.catelogId,
+                        catalogId: this.dataForm.catalogId,
                         brandId: this.dataForm.brandId,
                         min: this.dataForm.price.min,
                         max: this.dataForm.price.max
@@ -169,25 +167,22 @@
                     this.dataListLoading = false
                 })
             },
-            // 每页数
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // 当前页
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // 多选
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             }
         },
         mounted () {
             this.catPathSub = this.PubSub.subscribe('catPath', (msg, val) => {
-                this.dataForm.catelogId = val[val.length - 1]
+                this.dataForm.catalogId = val[val.length - 1]
             })
             this.brandIdSub = this.PubSub.subscribe('brandId', (msg, val) => {
                 this.dataForm.brandId = val

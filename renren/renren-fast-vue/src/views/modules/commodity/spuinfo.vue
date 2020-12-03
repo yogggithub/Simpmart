@@ -1,24 +1,5 @@
 <template>
     <div class="mod-config">
-        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item>
-                <el-input clearable placeholder="Parameter Name" v-model="dataForm.key"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button @click="getDataList()">Query</el-button>
-                <el-button
-                    @click="addOrUpdateHandle()"
-                    type="primary"
-                    v-if="isAuth('commodity:spuinfo:save')"
-                >Add</el-button>
-                <el-button
-                    :disabled="dataListSelections.length <= 0"
-                    @click="deleteHandle()"
-                    type="danger"
-                    v-if="isAuth('commodity:spuinfo:delete')"
-                >Batch Deletion</el-button>
-            </el-form-item>
-        </el-form>
         <el-table
             :data="dataList"
             @selection-change="selectionChangeHandle"
@@ -27,45 +8,31 @@
             v-loading="dataListLoading"
         >
             <el-table-column align="center" header-align="center" type="selection" width="50"></el-table-column>
-            <el-table-column align="center" header-align="center" label="spu id" prop="id"></el-table-column>
-            <el-table-column align="center" header-align="center" label="spu name" prop="spuName"></el-table-column>
+            <el-table-column align="center" header-align="center" label="id" prop="id"></el-table-column>
+            <el-table-column align="center" header-align="center" label="name" prop="spuName"></el-table-column>
             <el-table-column
                 align="center"
                 header-align="center"
-                label="spu description"
+                label="description"
                 prop="spuDescription"
             ></el-table-column>
+            <el-table-column align="center" header-align="center" label="catalog" prop="catalogId"></el-table-column>
+            <el-table-column align="center" header-align="center" label="brand" prop="brandId"></el-table-column>
+            <el-table-column align="center" header-align="center" label="weight" prop="weight"></el-table-column>
             <el-table-column
                 align="center"
                 header-align="center"
-                label="category id"
-                prop="catalogId"
-            ></el-table-column>
-            <el-table-column align="center" header-align="center" label="brand id" prop="brandId"></el-table-column>
-            <el-table-column
-                align="center"
-                header-align="center"
-                label="product weight"
-                prop="weight"
-            ></el-table-column>
-            <el-table-column
-                align="center"
-                header-align="center"
-                label="Is the product on sale [0->no, 1->yes]"
+                label="satuse"
                 prop="publishStatus"
-            ></el-table-column>
-            <el-table-column
-                align="center"
-                header-align="center"
-                label="spu create time"
-                prop="createTime"
-            ></el-table-column>
-            <el-table-column
-                align="center"
-                header-align="center"
-                label="spu update time"
-                prop="updateTime"
-            ></el-table-column>
+            >
+                <template slot-scope="scope">
+                    <el-tag v-if="scope.row.publishStatus == 0">new created</el-tag>
+                    <el-tag v-if="scope.row.publishStatus == 1">avaliable</el-tag>
+                    <el-tag v-if="scope.row.publishStatus == 2">unavailable</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column align="center" header-align="center" label="创建时间" prop="createTime"></el-table-column>
+            <el-table-column align="center" header-align="center" label="修改时间" prop="updateTime"></el-table-column>
             <el-table-column
                 align="center"
                 fixed="right"
@@ -75,14 +42,20 @@
             >
                 <template slot-scope="scope">
                     <el-button
-                        @click="addOrUpdateHandle(scope.row.id)"
+                        @click="productUp(scope.row.id)"
                         size="small"
                         type="text"
-                    >Update</el-button>
-                    <el-button @click="deleteHandle(scope.row.id)" size="small" type="text">Delete</el-button>
+                        v-if="scope.row.publishStatus == 0"
+                    >active</el-button>
+                    <el-button
+                        @click="attrUpdateShow(scope.row)"
+                        size="small"
+                        type="text"
+                    >specifications</el-button>
                 </template>
             </el-table-column>
         </el-table>
+
         <el-pagination
             :current-page="pageIndex"
             :page-size="pageSize"
@@ -92,19 +65,15 @@
             @size-change="sizeChangeHandle"
             layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
-        <!-- pop-up window, add / update -->
-        <add-or-update @refreshDataList="getDataList" ref="addOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
     </div>
 </template>
 
 <script>
-    import AddOrUpdate from './spuinfo-add-or-update'
     export default {
         data () {
             return {
-                dataForm: {
-                    key: ''
-                },
+                dataSub: null,
+                dataForm: {},
                 dataList: [],
                 pageIndex: 1,
                 pageSize: 10,
@@ -114,24 +83,54 @@
                 addOrUpdateVisible: false
             }
         },
-        components: {
-            AddOrUpdate
+        props: {
+            catId: {
+                type: Number,
+                default: 0
+            }
         },
+        components: {},
         activated () {
             this.getDataList()
         },
         methods: {
-            // get data list
+            productUp (id) {
+                this.$http({
+                    url: this.$http.adornUrl('/commodity/spuinfo/' + id + '/up'),
+                    method: 'post'
+                }).then(({ data }) => {
+                    if (data && data.code === 0) {
+                        this.$message({
+                            message: 'Successfully',
+                            type: 'success',
+                            duration: 1500,
+                            onClose: () => {
+                                this.getDataList()
+                            }
+                        })
+                    } else {
+                        this.$message.error(data.msg)
+                    }
+                })
+            },
+            attrUpdateShow (row) {
+                console.log(row)
+                this.$router.push({
+                    path: '/commodity-attrupdate',
+                    query: { spuId: row.id, catalogId: row.catalogId }
+                })
+            },
             getDataList () {
                 this.dataListLoading = true
+                let param = {}
+                Object.assign(param, this.dataForm, {
+                    page: this.pageIndex,
+                    limit: this.pageSize
+                })
                 this.$http({
                     url: this.$http.adornUrl('/commodity/spuinfo/list'),
                     method: 'get',
-                    params: this.$http.adornParams({
-                        'page': this.pageIndex,
-                        'limit': this.pageSize,
-                        'key': this.dataForm.key
-                    })
+                    params: this.$http.adornParams(param)
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
                         this.dataList = data.page.list
@@ -143,58 +142,28 @@
                     this.dataListLoading = false
                 })
             },
-            // amount per page
             sizeChangeHandle (val) {
                 this.pageSize = val
                 this.pageIndex = 1
                 this.getDataList()
             },
-            // current page
             currentChangeHandle (val) {
                 this.pageIndex = val
                 this.getDataList()
             },
-            // multiple selection
             selectionChangeHandle (val) {
                 this.dataListSelections = val
             },
-            // add / update
-            addOrUpdateHandle (id) {
-                this.addOrUpdateVisible = true
-                this.$nextTick(() => {
-                    this.$refs.addOrUpdate.init(id)
-                })
-            },
-            // delete
-            deleteHandle (id) {
-                var ids = id ? [id] : this.dataListSelections.map(item => {
-                    return item.id
-                })
-                this.$confirm(`Do you want to [${id ? 'delete' : 'batch delete'}] [id=${ids.join(',')}]?`, 'warning', {
-                    confirmButtonText: 'Sure',
-                    cancelButtonText: 'Cancel',
-                    type: 'warning'
-                }).then(() => {
-                    this.$http({
-                        url: this.$http.adornUrl('/commodity/spuinfo/delete'),
-                        method: 'post',
-                        data: this.$http.adornData(ids, false)
-                    }).then(({ data }) => {
-                        if (data && data.code === 0) {
-                            this.$message({
-                                message: 'Completed',
-                                type: 'success',
-                                duration: 1500,
-                                onClose: () => {
-                                    this.getDataList()
-                                }
-                            })
-                        } else {
-                            this.$message.error(data.msg)
-                        }
-                    })
-                })
-            }
+            addOrUpdateHandle (id) { }
+        },
+        mounted () {
+            this.dataSub = this.PubSub.subscribe('dataForm', (msg, val) => {
+                this.dataForm = val
+                this.getDataList()
+            })
+        },
+        beforeDestroy () {
+            this.PubSub.unsubscribe(this.dataSub)
         }
     }
 </script>

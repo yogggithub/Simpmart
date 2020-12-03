@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? '新增' : '修改'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
     >
         <el-form
@@ -11,14 +11,14 @@
             label-width="120px"
             ref="dataForm"
         >
-            <el-form-item label="采购商品id" prop="skuId">
-                <el-input placeholder="采购商品id" v-model="dataForm.skuId"></el-input>
+            <el-form-item label="purchase sku id" prop="skuId">
+                <el-input placeholder="purchase sku id" v-model="dataForm.skuId"></el-input>
             </el-form-item>
-            <el-form-item label="采购数量" prop="skuNum">
-                <el-input placeholder="采购数量" v-model="dataForm.skuNum"></el-input>
+            <el-form-item label="purchase quantity" prop="skuNum">
+                <el-input placeholder="purchase quantity" v-model="dataForm.skuNum"></el-input>
             </el-form-item>
-            <el-form-item label="仓库" prop="wareId">
-                <el-select clearable placeholder="请选择仓库" v-model="dataForm.wareId">
+            <el-form-item label="warehouse" prop="wareId">
+                <el-select clearable placeholder="Select" v-model="dataForm.wareId">
                     <el-option :key="w.id" :label="w.name" :value="w.id" v-for="w in wareList"></el-option>
                 </el-select>
             </el-form-item>
@@ -34,8 +34,8 @@
             </el-form-item>-->
         </el-form>
         <span class="dialog-footer" slot="footer">
-            <el-button @click="visible = false">取消</el-button>
-            <el-button @click="dataFormSubmit()" type="primary">确定</el-button>
+            <el-button @click="visible = false">Cancel</el-button>
+            <el-button @click="dataFormSubmit()" type="primary">Confirm</el-button>
         </span>
     </el-dialog>
 </template>
@@ -57,12 +57,12 @@
                 },
                 dataRule: {
                     skuId: [
-                        { required: true, message: '采购商品id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     skuNum: [
-                        { required: true, message: '采购数量不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
-                    wareId: [{ required: true, message: '仓库id不能为空', trigger: 'blur' }]
+                    wareId: [{ required: true, message: 'Can not be empty', trigger: 'blur' }]
                 }
             }
         },
@@ -72,7 +72,7 @@
         methods: {
             getWares () {
                 this.$http({
-                    url: this.$http.adornUrl('/ware/wareinfo/list'),
+                    url: this.$http.adornUrl('/ware/warehouseinfo/list'),
                     method: 'get',
                     params: this.$http.adornParams({
                         page: 1,
@@ -107,7 +107,6 @@
                     }
                 })
             },
-            // 表单提交
             dataFormSubmit () {
                 this.$refs['dataForm'].validate(valid => {
                     if (valid) {
@@ -128,7 +127,7 @@
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
                                 this.$message({
-                                    message: '操作成功',
+                                    message: 'Successfully',
                                     type: 'success',
                                     duration: 1500,
                                     onClose: () => {

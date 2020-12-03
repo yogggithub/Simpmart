@@ -1,7 +1,7 @@
 <template>
     <el-dialog
         :close-on-click-modal="false"
-        :title="!dataForm.id ? '新增' : '修改'"
+        :title="!dataForm.id ? 'Add' : 'Update'"
         :visible.sync="visible"
     >
         <el-form
@@ -11,13 +11,13 @@
             label-width="120px"
             ref="dataForm"
         >
-            <el-form-item label="优先级" prop="priority">
-                <el-input placeholder="优先级" v-model="dataForm.priority"></el-input>
+            <el-form-item label="priority" prop="priority">
+                <el-input placeholder="priority" v-model="dataForm.priority"></el-input>
             </el-form-item>
         </el-form>
         <span class="dialog-footer" slot="footer">
-            <el-button @click="visible = false">取消</el-button>
-            <el-button @click="dataFormSubmit()" type="primary">确定</el-button>
+            <el-button @click="visible = false">Cancel</el-button>
+            <el-button @click="dataFormSubmit()" type="primary">Confirm</el-button>
         </span>
     </el-dialog>
 </template>
@@ -41,31 +41,31 @@
                 },
                 dataRule: {
                     assigneeId: [
-                        { required: true, message: '采购人id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     assigneeName: [
-                        { required: true, message: '采购人名不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     phone: [
-                        { required: true, message: '联系方式不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     priority: [
-                        { required: true, message: '优先级不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     status: [
-                        { required: true, message: '状态不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     wareId: [
-                        { required: true, message: '仓库id不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     amount: [
-                        { required: true, message: '总金额不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     createTime: [
-                        { required: true, message: '创建日期不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     updateTime: [
-                        { required: true, message: '更新日期不能为空', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ]
                 }
             }
@@ -97,7 +97,6 @@
                     }
                 })
             },
-            // 表单提交
             dataFormSubmit () {
                 this.$refs['dataForm'].validate((valid) => {
                     if (valid) {
@@ -119,7 +118,7 @@
                         }).then(({ data }) => {
                             if (data && data.code === 0) {
                                 this.$message({
-                                    message: '操作成功',
+                                    message: 'Successfully',
                                     type: 'success',
                                     duration: 1500,
                                     onClose: () => {

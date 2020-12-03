@@ -391,34 +391,34 @@
                     brandId: '',
                     weight: '',
                     publishStatus: 0,
-                    description: [], // 商品详情
-                    images: [], // 商品图集，最后sku也可以新增
+                    description: [], // images used in product detailed description
+                    images: [], // Photo Gallery
                     bounds: {
-                        // 积分
+                        // reward points
                         buyBounds: 0,
                         growBounds: 0
                     },
-                    baseAttrs: [], // 基本属性
-                    skus: [] // 所有sku信息
+                    baseAttrs: [], // basic attributes
+                    skus: [] // all sku info
                 },
                 spuBaseInfoRules: {
                     spuName: [
-                        { required: false, message: 'Can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     spuDescription: [
-                        { required: false, message: 'Can not be emptye', trigger: 'blur' }
+                        { required: true, message: 'Can not be emptye', trigger: 'blur' }
                     ],
                     catalogId: [
-                        { required: false, message: 'Can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     brandId: [
-                        { required: false, message: 'Can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     description: [
-                        { required: false, message: 'Can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     images: [
-                        { required: false, message: 'Can not be empty', trigger: 'blur' }
+                        { required: true, message: 'Can not be empty', trigger: 'blur' }
                     ],
                     weight: [
                         {
@@ -443,26 +443,23 @@
             }
         },
         computed: {},
-        // 监控data中的数据变化
         watch: {
             uploadImages (val) {
-                // 扩展每个skus里面的imgs选项
+                // entend imgs in each skus
                 let imgArr = Array.from(new Set(this.spu.images.concat(val)))
 
-                // {imgUrl:"",defaultImg:0} 由于concat每次迭代上次，有很多重复。所以我们必须得到上次+这次的总长
-
+                // concat imgs in order to save all images info
                 this.spu.skus.forEach((item, index) => {
-                    let len = imgArr.length - this.spu.skus[index].images.length // 还差这么多
+                    let len = imgArr.length - this.spu.skus[index].images.length
                     if (len > 0) {
                         let imgs = new Array(len)
                         imgs = imgs.fill({ imgUrl: '', defaultImg: 0 })
                         this.spu.skus[index].images = item.images.concat(imgs)
                     }
                 })
-                this.spu.images = imgArr // 去重
+                this.spu.images = imgArr
             }
         },
-        // 方法集合
         methods: {
             addAgian () {
                 this.step = 0
@@ -509,10 +506,10 @@
                 // this.$refs['saveTagInput'+idx].$refs.input.focus();
             },
             checkDefaultImg (row, index, img) {
-                // 这个图片被选中了，
+                // selected image as default
                 row.images[index].imgUrl = img
                 row.images[index].defaultImg = 1
-                // 修改其他人的标志位
+                // update other images' status
                 row.images.forEach((item, idx) => {
                     if (idx !== index) {
                         row.images[idx].defaultImg = 0
@@ -522,7 +519,6 @@
             handleInputConfirm (idx) {
                 let inputValue = this.inputValue[idx].val
                 if (inputValue) {
-                    // this.dynamicTags.push(inputValue);
                     if (this.dataResp.saleAttrs[idx].valueSelect === '') {
                         this.dataResp.saleAttrs[idx].valueSelect = inputValue
                     } else {
@@ -544,15 +540,15 @@
                 })
             },
             generateSaleAttrs () {
-                // 把页面绑定的所有attr处理到spu里面,这一步都要做
+                // bind all attributes to spu
                 this.spu.baseAttrs = []
                 this.dataResp.baseAttrs.forEach(item => {
                     item.forEach(attr => {
                         let { attrId, attrValues, showDesc } = attr
-                        // 跳过没有录入值的属性
+                        // skip empty attributes
                         if (attrValues !== '') {
                             if (attrValues instanceof Array) {
-                                // 多个值用;隔开
+                                // multiple value seperated by ;
                                 attrValues = attrValues.join(';')
                             }
                             this.spu.baseAttrs.push({ attrId, attrValues, showDesc })
@@ -566,7 +562,7 @@
             generateSkus () {
                 this.step = 3
 
-                // 根据笛卡尔积运算进行生成sku
+                // Generation of sku from Cartesian Product operations
                 let selectValues = []
                 this.dataResp.tableAttrColumn = []
                 this.dataResp.tempSaleAttrs.forEach(item => {
@@ -577,17 +573,13 @@
                 })
 
                 let descartes = this.descartes(selectValues)
-                // [["黑色","6GB","移动"],["黑色","6GB","联通"],["黑色","8GB","移动"],["黑色","8GB","联通"],
-                // ["白色","6GB","移动"],["白色","6GB","联通"],["白色","8GB","移动"],["白色","8GB","联通"],
-                // ["蓝色","6GB","移动"],["蓝色","6GB","联通"],["蓝色","8GB","移动"],["蓝色","8GB","联通"]]
-                console.log('生成的组合', JSON.stringify(descartes))
-                // 有多少descartes就有多少sku
+                console.log('Generated product portfolio', JSON.stringify(descartes))
+
                 let skus = []
 
                 descartes.forEach((descar, descaridx) => {
-                    let attrArray = [] // sku属性组
+                    let attrArray = []
                     descar.forEach((de, index) => {
-                        // 构造saleAttr信息
                         let saleAttrItem = {
                             attrId: this.dataResp.tableAttrColumn[index].attrId,
                             attrName: this.dataResp.tableAttrColumn[index].attrName,
@@ -595,13 +587,12 @@
                         }
                         attrArray.push(saleAttrItem)
                     })
-                    // 先初始化几个images，后面的上传还要加
                     let imgs = []
                     this.spu.images.forEach((img, idx) => {
                         imgs.push({ imgUrl: '', defaultImg: 0 })
                     })
 
-                    // 会员价，也必须在循环里面生成，否则会导致数据绑定问题
+                    // member special price, bind to every sku
                     let memberPrices = []
                     if (this.dataResp.memberLevels.length > 0) {
                         for (let i = 0; i < this.dataResp.memberLevels.length; i++) {
@@ -614,7 +605,7 @@
                             }
                         }
                     }
-                    // ;descaridx，判断如果之前有就用之前的值;
+
                     let res = this.hasAndReturnSku(this.spu.skus, descar)
                     if (res === null) {
                         skus.push({
@@ -641,7 +632,7 @@
                 this.spu.skus = skus
                 console.log('结果!!!', this.spu.skus, this.dataResp.tableAttrColumn)
             },
-            // 判断如果包含之前的sku的descar组合，就返回这个sku的详细信息；
+            // return sku info if match some already exist sku
             hasAndReturnSku (skus, descar) {
                 let res = null
                 if (skus.length > 0) {
@@ -654,7 +645,6 @@
                 return res
             },
             getShowSaleAttr () {
-                // 获取当前分类可以使用的销售属性
                 if (!this.dataResp.steped[1]) {
                     this.$http({
                         url: this.$http.adornUrl(
@@ -689,7 +679,6 @@
                         method: 'get',
                         params: this.$http.adornParams({})
                     }).then(({ data }) => {
-                        // 先对表单的baseAttrs进行初始化
                         data.data.forEach(item => {
                             let attrArray = []
                             item.attrs.forEach(attr => {
@@ -708,7 +697,7 @@
             },
 
             submitSkus () {
-                console.log('~~~~~', JSON.stringify(this.spu))
+                // console.log('~~~~~', JSON.stringify(this.spu))
                 this.$confirm('Submit product information would take a short time，continue?', 'Notice', {
                     confirmButtonText: 'Confirm',
                     cancelButtonText: 'Cancel',
@@ -733,9 +722,8 @@
                         this.$message.info('Canceled')
                     })
             },
-            // 笛卡尔积运算
+            // Cartesian product operations
             descartes (list) {
-                // parent上一级索引;count指针计数
                 var point = {}
 
                 var result = []
@@ -743,7 +731,7 @@
                 var tempCount = 0
                 var temp = []
 
-                // 根据参数列生成指针对象
+                // generate pointer from the parameter
                 for (var index in list) {
                     if (typeof list[index] === 'object') {
                         point[index] = { parent: pIndex, count: 0 }
@@ -751,23 +739,22 @@
                     }
                 }
 
-                // 单维度数据结构直接返回
+                // directly return single-dimensional data
                 if (pIndex == null) {
                     return list
                 }
 
-                // 动态生成笛卡尔积
+                // dynamic
                 while (true) {
                     for (var i in list) {
                         tempCount = point[i]['count']
                         temp.push(list[i][tempCount])
                     }
 
-                    // 压入结果数组
                     result.push(temp)
                     temp = []
 
-                    // 检查指针最大值问题
+                    // check maximium value of pointer
                     while (true) {
                         if (point[index]['count'] + 1 >= list[index].length) {
                             point[index]['count'] = 0
@@ -776,7 +763,6 @@
                                 return result
                             }
 
-                            // 赋值parent进行再次检查
                             index = pIndex
                         } else {
                             point[index]['count']++

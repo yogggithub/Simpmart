@@ -1,5 +1,6 @@
 package com.simpmart.commodity.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -20,8 +21,10 @@ public class SpuInfoDescEntity implements Serializable {
 
 	/**
 	 * product id
+	 * this column is not auto incremental
+	 * so need to specified type
 	 */
-	@TableId
+	@TableId(type = IdType.INPUT)
 	private Long spuId;
 	/**
 	 * product description

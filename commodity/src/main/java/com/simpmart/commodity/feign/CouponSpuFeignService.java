@@ -7,11 +7,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient("coupon")
+@FeignClient("gateway")
 public interface CouponSpuFeignService {
-    @PostMapping("coupon/spubounds/save/to")
+    @PostMapping("/api/coupon/spubounds/save/to")
     R saveSpuBounds(@RequestBody SpuBoundsTo spuBoundsTo);
 
-    @PostMapping("coupon/spubounds")
+    @PostMapping("/api/coupon/skufullreduction/saveinfo")
     R saveSkuPromotion(@RequestBody SkuPromotionTo skuPromotionTo);
 }
